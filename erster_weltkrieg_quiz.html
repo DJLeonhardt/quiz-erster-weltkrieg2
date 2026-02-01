@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Der Erste Weltkrieg – Quiz</title>
+
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    max-width: 900px;
+    margin: auto;
+    padding: 10px;
+    line-height: 1.5;
+  }
+
+  h1, h2 {
+    text-align: center;
+  }
+
+  .frage {
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 20px;
+    background: #fafafa;
+  }
+
+  label {
+    display: block;
+    padding: 10px;
+    margin-bottom: 8px;
+    border-radius: 6px;
+    background: #eee;
+    cursor: pointer;
+  }
+
+  input[type="radio"] {
+    transform: scale(1.3);
+    margin-right: 8px;
+  }
+
+  input[type="text"] {
+    width: 100%;
+    padding: 10px;
+    font-size: 1rem;
+  }
+
+  button {
+    width: 100%;
+    padding: 12px;
+    font-size: 1rem;
+    margin-top: 10px;
+    border-radius: 8px;
+    border: none;
+    background: #0077cc;
+    color: white;
+  }
+
+  button:hover {
+    background: #005fa3;
+  }
+
+  .feedback {
+    font-weight: bold;
+    margin-top: 10px;
+  }
+
+  .richtig { color: green; }
+  .falsch { color: red; }
+
+  /* ===== EXTRA HANDY-OPTIMIERUNG ===== */
+  @media (max-width: 600px) {
+    body {
+      font-size: 1.1rem;
+    }
+
+    label {
+      padding: 14px;
+    }
+
+    button {
+      font-size: 1.1rem;
+    }
+  }
+</style>
+</head>
+
+<body>
+
+<h1>Der Erste Weltkrieg (1914–1918)</h1>
+<p style="text-align:center;">Tippe auf die richtige Antwort.</p>
+
+<div id="quiz"></div>
+
+<h2 id="ergebnis"></h2>
+<h2 id="note"></h2>
+
+<script>
+const fragen = [
+  {
+    typ: "mc",
+    frage: "Welches Ereignis gilt als Auslöser des Ersten Weltkriegs?",
+    antworten: [
+      "Der Versailler Vertrag",
+      "Das Attentat von Sarajevo",
+      "Der Eintritt der USA"
+    ],
+    richtig: 1,
+    erklaerung: "Das Attentat von Sarajevo 1914 löste den Krieg aus."
+  },
+  {
+    typ: "text",
+    frage: "In welcher Stadt wurde Erzherzog Franz Ferdinand ermordet?",
+    richtig: ["sarajevo"],
+    erklaerung: "Das Attentat fand in Sarajevo statt."
+  },
+  {
+    typ: "mc",
+    frage: "Welche Länder gehörten zu den Mittelmächten?",
+    antworten: [
+      "Deutschland, Österreich-Ungarn, Osmanisches Reich",
+      "Frankreich, Großbritannien, Russland",
+      "USA, Italien, Japan"
+    ],
+    richtig: 0,
+    erklaerung: "Diese Staaten bildeten die Mittelmächte."
+  },
+  {
+    typ: "mc",
+    frage: "Wie nennt man den Krieg mit Schützengräben?",
+    antworten: ["Bewegungskrieg", "Stellungskrieg", "Seekrieg"],
+    richtig: 1,
+    erklaerung: "Der Stellungskrieg war typisch für die Westfront."
+  },
+  {
+    typ: "mc",
+    frage: "Welche neue Waffe wurde eingesetzt?",
+    antworten: ["Giftgas", "Atombomben", "Drohnen"],
+    richtig: 0,
+    erklaerung: "Giftgas wurde erstmals im großen Stil eingesetzt."
+  },
+  {
+    typ: "text",
+    frage: "Wie nennt man den Wettlauf um Kolonien vor 1914?",
+    richtig: ["imperialismus"],
+    erklaerung: "Imperialismus war eine wichtige Ursache des Krieges."
+  },
+  {
+    typ: "mc",
+    frage: "Warum traten die USA 1917 in den Krieg ein?",
+    antworten: [
+      "Wegen deutscher U-Boot-Angriffe",
+      "Wegen eines Angriffs auf die USA",
+      "Wegen eines Bündnisses mit Österreich"
+    ],
+    richtig: 0,
+    erklaerung: "U-Boot-Angriffe auf Handelsschiffe waren der Hauptgrund."
+  },
+  {
+    typ: "mc",
+    frage: "In welchem Jahr endete der Erste Weltkrieg?",
+    antworten: ["1916", "1917", "1918"],
+    richtig: 2,
+    erklaerung: "Der Krieg endete 1918."
+  },
+  {
+    typ: "mc",
+    frage: "Was geschah am 11. November 1918?",
+    antworten: [
+      "Kriegsbeginn",
+      "Waffenstillstand",
+      "Friedensvertrag"
+    ],
+    richtig: 1,
+    erklaerung: "An diesem Tag wurde der Waffenstillstand unterzeichnet."
+  },
+  {
+    typ: "text",
+    frage: "Wie heißt der Friedensvertrag von 1919?",
+    richtig: ["versailler vertrag", "versaillervertrag"],
+    erklaerung: "Der Vertrag heißt Versailler Vertrag."
+  }
+];
+
+let punkte = 0;
+let beantwortet = Array(fragen.length).fill(false);
+const quizDiv = document.getElementById("quiz");
+
+fragen.forEach((f, index) => {
+  const div = document.createElement("div");
+  div.className = "frage";
+  div.innerHTML = `<p><b>${index + 1}. ${f.frage}</b></p>`;
+
+  if (f.typ === "mc") {
+    f.antworten.forEach((a, i) => {
+      div.innerHTML += `
+        <label>
+          <input type="radio" name="frage${index}" value="${i}">
+          ${a}
+        </label>`;
+    });
+  } else {
+    div.innerHTML += `<input type="text" id="text${index}">`;
+  }
+
+  div.innerHTML += `
+    <button onclick="pruefen(${index})">Antwort prüfen</button>
+    <div class="feedback" id="feedback${index}"></div>
+  `;
+
+  quizDiv.appendChild(div);
+});
+
+function pruefen(index) {
+  if (beantwortet[index]) return;
+
+  const f = fragen[index];
+  let richtig = false;
+
+  if (f.typ === "mc") {
+    const a = document.querySelector(`input[name="frage${index}"]:checked`);
+    if (!a) return;
+    richtig = parseInt(a.value) === f.richtig;
+  } else {
+    const eingabe = document.getElementById("text" + index).value.toLowerCase().trim();
+    richtig = f.richtig.includes(eingabe);
+  }
+
+  const feedback = document.getElementById("feedback" + index);
+  if (richtig) {
+    feedback.innerHTML = "✔ Richtig! " + f.erklaerung;
+    feedback.className = "feedback richtig";
+    punkte++;
+  } else {
+    feedback.innerHTML = "✘ Falsch. " + f.erklaerung;
+    feedback.className = "feedback falsch";
+  }
+
+  beantwortet[index] = true;
+
+  const prozent = Math.round((punkte / fragen.length) * 100);
+  document.getElementById("ergebnis").innerText =
+    `Punkte: ${punkte} von ${fragen.length} (${prozent} %)`;
+  document.getElementById("note").innerText =
+    `Note: ${note(prozent)}`;
+}
+
+function note(p) {
+  if (p >= 90) return "1 (sehr gut)";
+  if (p >= 75) return "2 (gut)";
+  if (p >= 60) return "3 (befriedigend)";
+  if (p >= 45) return "4 (ausreichend)";
+  if (p >= 30) return "5 (mangelhaft)";
+  return "6 (ungenügend)";
+}
+</script>
+
+</body>
+</html>
